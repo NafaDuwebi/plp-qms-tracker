@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLP QMS — Improvement Log Tracker</title>
+<style>
+  :root {
+    --plp-orange: #E8600A;
+    --plp-dark: #1A1A1A;
+    --plp-mid: #2C2C2C;
+    --bg: #F7F5F2;
+    --surface: #FFFFFF;
+    --border: #E2DDD8;
+    --text: #1A1A1A;
+    --text-muted: #6B6560;
+    --text-light: #9B948E;
+    --low-bg: #EAF3DE;
+    --low-text: #27500A;
+    --low-border: #C0DD97;
+    --med-bg: #FAEEDA;
+    --med-text: #633806;
+    --med-border: #FAC775;
+    --p22-bg: #E6F1FB;
+    --p22-text: #0C447C;
+    --p22-border: #85B7EB;
+    --p09-bg: #EEEDFE;
+    --p09-text: #3C3489;
+    --p09-border: #AFA9EC;
+    --open-bg: #FCEBEB;
+    --open-text: #A32D2D;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--plp-dark);
+    padding: 0;
+    border-bottom: 3px solid var(--plp-orange);
+  }
+  .header-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .logo-area {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .logo-chevrons {
+    display: flex;
+    gap: 3px;
+  }
+  .chevron-shape {
+    width: 0;
+    height: 0;
+    border-top: 11px solid transparent;
+    border-bottom: 11px solid transparent;
+    border-left: 9px solid var(--plp-orange);
+  }
+  .logo-text {
+    font-family: 'Arial', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #FFFFFF;
+    letter-spacing: 0.5px;
+  }
+  .logo-sub {
+    font-family: 'Arial', sans-serif;
+    font-size: 11px;
+    color: #999;
+    letter-spacing: 0.3px;
+    margin-top: 1px;
+  }
+  .header-meta {
+    text-align: right;
+    font-family: 'Arial', sans-serif;
+  }
+  .header-meta-title {
+    font-size: 13px;
+    color: #CCC;
+    font-weight: 400;
+  }
+  .header-meta-date {
+    font-size: 11px;
+    color: var(--plp-orange);
+    margin-top: 2px;
+  }
+
+  /* MAIN */
+  .main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 28px 24px 60px;
+  }
+
+  /* SUMMARY STATS */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+  }
+  .stat-label {
+    font-family: 'Arial', sans-serif;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 5px;
+  }
+  .stat-value {
+    font-family: 'Arial', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+  .stat-value.orange { color: var(--plp-orange); }
+  .stat-value.red { color: var(--open-text); }
+  .stat-value.amber { color: var(--med-text); }
+  .stat-sub {
+    font-family: 'Arial', sans-serif;
+    font-size: 11px;
+    color: var(--text-light);
+    margin-top: 3px;
+  }
+
+  /* FILTERS */
+  .controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    align-items: center;
+  }
+  .controls-label {
+    font-family: 'Arial', sans-serif;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-right: 4px;
+  }
+  .filter-btn {
+    font-family: 'Arial', sans-serif;
+    font-size: 12px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 400;
+  }
+  .filter-btn:hover { border-color: var(--plp-orange); color: var(--plp-orange); }
+  .filter-btn.active { background: var(--plp-orange); color: #FFF; border-color: var(--plp-orange); font-weight: 600; }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-family: 'Arial', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-light);
+    margin: 24px 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .section-badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .badge-p22 { background: var(--p22-bg); color: var(--p22-text); border: 1px solid var(--p22-border); }
+  .badge-p09 { background: var(--p09-bg); color: var(--p09-text); border: 1px solid var(--p09-border); }
+  .badge-low { background: var(--low-bg); color: var(--low-text); border: 1px solid var(--low-border); }
+  .badge-med { background: var(--med-bg); color: var(--med-text); border: 1px solid var(--med-border); }
+  .badge-open { background: var(--open-bg); color: var(--open-text); border: 1px solid #F09595; }
+
+  /* ITEM CARD */
+  .item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: border-color 0.15s;
+  }
+  .item:hover { border-color: #CCC; }
+  .item.open { border-color: var(--plp-orange); }
+
+  .item-header {
+    display: grid;
+    grid-template-columns: 90px 1fr auto;
+    gap: 14px;
+    padding: 14px 16px;
+    cursor: pointer;
+    align-items: center;
+    user-select: none;
+  }
+
+  .step-col { display: flex; flex-direction: column; gap: 5px; }
+  .step-tag {
+    font-family: 'Arial', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    text-align: center;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+
+  .item-summary {}
+  .item-title {
+    font-family: 'Arial', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 3px;
+    line-height: 1.3;
+  }
+  .item-subtitle {
+    font-family: 'Arial', sans-serif;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  .item-toggle {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    background: var(--bg);
+  }
+  .item.open .item-toggle {
+    background: var(--plp-orange);
+    border-color: var(--plp-orange);
+    transform: rotate(45deg);
+  }
+  .toggle-icon {
+    font-size: 16px;
+    color: var(--text-muted);
+    font-style: normal;
+    line-height: 1;
+    margin-top: -1px;
+  }
+  .item.open .toggle-icon { color: #FFF; }
+
+  /* DETAIL PANEL */
+  .item-detail {
+    display: none;
+    border-top: 1px solid var(--border);
+    background: #FAFAF8;
+  }
+  .item-detail.visible { display: block; }
+  .detail-inner { padding: 16px 18px; }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+  .detail-block {}
+  .detail-label {
+    font-family: 'Arial', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-light);
+    margin-bottom: 5px;
+  }
+  .detail-val {
+    font-family: 'Arial', sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.55;
+  }
+
+  .owner-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Arial', sans-serif;
+    font-size: 11px;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2px 10px;
+    margin-top: 6px;
+    background: var(--surface);
+  }
+  .owner-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--plp-orange);
+    flex-shrink: 0;
+  }
+
+  /* QMS REFERENCE BOX */
+  .qms-ref {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .qms-ref-header {
+    background: var(--plp-dark);
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .qms-ref-title {
+    font-family: 'Arial', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--plp-orange);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .qms-ref-body { background: var(--surface); }
+  .qms-row {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 10px;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border);
+    align-items: baseline;
+  }
+  .qms-row:last-child { border-bottom: none; }
+  .qms-key {
+    font-family: 'Arial', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding-top: 1px;
+  }
+  .qms-val {
+    font-family: 'Arial', sans-serif;
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.55;
+  }
+  .qms-val strong { font-weight: 700; color: var(--plp-dark); }
+
+  /* DEADLINE ROW */
+  .deadline-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .deadline-chip {
+    font-family: 'Arial', sans-serif;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--med-border);
+    background: var(--med-bg);
+    color: var(--med-text);
+    font-weight: 600;
+  }
+  .sp-link {
+    font-family: 'Arial', sans-serif;
+    font-size: 12px;
+    color: var(--p22-text);
+    text-decoration: none;
+    border-bottom: 1px solid var(--p22-border);
+    padding-bottom: 1px;
+    transition: color 0.15s;
+  }
+  .sp-link:hover { color: var(--plp-orange); border-color: var(--plp-orange); }
+
+  /* FOOTER */
+  .footer {
+    background: var(--plp-dark);
+    border-top: 3px solid var(--plp-orange);
+    padding: 16px 24px;
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+    font-size: 11px;
+    color: #666;
+  }
+  .footer span { color: var(--plp-orange); }
+
+  /* HIDDEN */
+  .hidden { display: none !important; }
+
+  @media (max-width: 680px) {
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .detail-grid { grid-template-columns: 1fr; }
+    .item-header { grid-template-columns: 80px 1fr auto; }
+    .qms-row { grid-template-columns: 100px 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-area">
+      <div class="logo-chevrons">
+        <div class="chevron-shape"></div>
+        <div class="chevron-shape"></div>
+        <div class="chevron-shape"></div>
+      </div>
+      <div>
+        <div class="logo-text">PL Projects</div>
+        <div class="logo-sub">Quality Management System</div>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="header-meta-title">Improvement Log Tracker</div>
+      <div class="header-meta-date">SGS External Audit: 11 June 2026 &nbsp;|&nbsp; Deadline: 29 May 2026</div>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Total open items</div>
+      <div class="stat-value orange">9</div>
+      <div class="stat-sub">All from 2026 audits</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Medium severity</div>
+      <div class="stat-value amber">2</div>
+      <div class="stat-sub">P09 CRM items</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Days to deadline</div>
+      <div class="stat-value red" id="days-to-deadline">—</div>
+      <div class="stat-sub">29 May 2026</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Days to SGS audit</div>
+      <div class="stat-value orange" id="days-to-sgs">—</div>
+      <div class="stat-sub">11 June 2026</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <span class="controls-label">Show:</span>
+    <button class="filter-btn active" onclick="filter('all',this)">All (9)</button>
+    <button class="filter-btn" onclick="filter('p22',this)">P22 — Infrastructure (6)</button>
+    <button class="filter-btn" onclick="filter('p09',this)">P09 — Consultancy (3)</button>
+    <button class="filter-btn" onclick="filter('med',this)">Medium severity (2)</button>
+  </div>
+
+  <!-- P22 SECTION -->
+  <div class="section-label" data-section="p22">
+    <span class="section-badge badge-p22">P22 — Manage infrastructure &amp; environment</span>
+    audited 23/04/2026 · owner: Nafa Duwebi
+  </div>
+
+  <!-- P22 5.2.1 -->
+  <div class="item" data-process="p22" data-sev="low">
+    <div class="item-header" onclick="toggle(this.parentElement)">
+      <div class="step-col">
+        <span class="step-tag badge-p22">P22 · 5.2.1</span>
+        <span class="step-tag badge-low">Low</span>
+      </div>
+      <div class="item-summary">
+        <div class="item-title">Remote working environment check</div>
+        <div class="item-subtitle">DSE, temperature, lighting and connectivity confirmation not evidenced in QMS</div>
+      </div>
+      <div class="item-toggle"><i class="toggle-icon">+</i></div>
+    </div>
+    <div class="item-detail">
+      <div class="detail-inner">
+        <div class="detail-grid">
+          <div class="detail-block">
+            <div class="detail-label">Audit finding</div>
+            <div class="detail-val">Process appears followed in practice but no formal evidence retained in QMS. Client Lead confirmation with each employee has not been documented.</div>
+            <div class="owner-pill"><div class="owner-dot"></div>Nafa Duwebi / Nathan Spooner</div>
+          </div>
+          <div class="detail-block">
+            <div class="detail-label">Agreed corrective action</div>
+            <div class="detail-val">Quality Manager to liaise with Client Leads to identify and gather existing evidence. Upload to QMS and retain in appropriate location. Clarify evidence requirement with process owners.</div>
+          </div>
+        </div>
+        <div class="qms-ref">
+          <div class="qms-ref-header">
+            <div class="qms-ref-title">&#9632; QMS Reference — Process Architecture</div>
+          </div>
+          <div class="qms-ref-body">
+            <div class="qms-row">
+              <span class="qms-key">Step 5.2.1</span>
+              <span class="qms-val">Client Lead confirms with the employee: <strong>(a)</strong> work environment is comfortable — temperature, lighting, ventilation and DSE; <strong>(b)</strong> arrangements for stable connectivity for network access and communications</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">ISO clause</span>
+              <span class="qms-val"><strong>7.1.3</strong> Infrastructure &amp; <strong>7.1.4</strong> Environment for operation of processes</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">Also see</span>
+              <span class="qms-val">P16 step 5.5.2 — HR Manager provides DSE guidance to remote workers · P16 step 5.4.1 — regular risk assessments for remote work setups</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">Evidence needed</span>
+              <span class="qms-val">Email or Teams message from Client Lead confirming working environment with the employee. <strong>Minimum 2 examples required.</strong> DSE training material alone is not sufficient — SGS will need evidence of the individual check taking place.</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">SP location</span>
+              <span class="qms-val">Active Quality Documents → <strong>Manage infrastructure and environment</strong></span>
+            </div>
+          </div>
+        </div>
+        <div class="deadline-row">
+          <span class="deadline-chip">&#128197; Deadline: 29 May 2026</span>
+          <span style="font-family:Arial;font-size:12px;color:var(--text-muted)">Status: <span class="badge-open" style="padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;">Open</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P22 5.3.1 -->
+  <div class="item" data-process="p22" data-sev="low">
+    <div class="item-header" onclick="toggle(this.parentElement)">
+      <div class="step-col">
+        <span class="step-tag badge-p22">P22 · 5.3.1</span>
+        <span class="step-tag badge-low">Low</span>
+      </div>
+      <div class="item-summary">
+        <div class="item-title">Client contact pre-start — equipment confirmation</div>
+        <div class="item-subtitle">No evidence Client Lead contacted client before consultant start date</div>
+      </div>
+      <div class="item-toggle"><i class="toggle-icon">+</i></div>
+    </div>
+    <div class="item-detail">
+      <div class="detail-inner">
+        <div class="detail-grid">
+          <div class="detail-block">
+            <div class="detail-label">Audit finding</div>
+            <div class="detail-val">Checks may be carried out in practice but evidence of client contact has not been consistently retained in QMS and was not available during the audit.</div>
+            <div class="owner-pill"><div class="owner-dot"></div>Nafa Duwebi / Nathan Spooner</div>
+          </div>
+          <div class="detail-block">
+            <div class="detail-label">Agreed corrective action</div>
+            <div class="detail-val">Check with relevant Client Leads what evidence is available, upload to QMS, and ensure this evidence is retained going forward for audit purposes.</div>
+          </div>
+        </div>
+        <div class="qms-ref">
+          <div class="qms-ref-header">
+            <div class="qms-ref-title">&#9632; QMS Reference — Process Architecture</div>
+          </div>
+          <div class="qms-ref-body">
+            <div class="qms-row">
+              <span class="qms-key">Step 5.3.1</span>
+              <span class="qms-val">In advance of the contractual start date, the Client Lead contacts the Client to request all equipment and infrastructure will be in place for the Consultant(s) on the contractual start date</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">ISO clause</span>
+              <span class="qms-val"><strong>7.1.3</strong> Infrastructure</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">Evidence needed</span>
+              <span class="qms-val">Email from Client Lead to client, sent <strong>before</strong> the consultant start date, requesting or confirming equipment readiness. Min. 2 examples.</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">SP location</span>
+              <span class="qms-val">Active Quality Documents → <strong>Manage infrastructure and environment</strong></span>
+            </div>
+          </div>
+        </div>
+        <div class="deadline-row">
+          <span class="deadline-chip">&#128197; Deadline: 29 May 2026</span>
+          <span style="font-family:Arial;font-size:12px;color:var(--text-muted)">Status: <span class="badge-open" style="padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;">Open</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P22 5.3.2 -->
+  <div class="item" data-process="p22" data-sev="low">
+    <div class="item-header" onclick="toggle(this.parentElement)">
+      <div class="step-col">
+        <span class="step-tag badge-p22">P22 · 5.3.2</span>
+        <span class="step-tag badge-low">Low</span>
+      </div>
+      <div class="item-summary">
+        <div class="item-title">Consultant confirmation — equipment provided by client</div>
+        <div class="item-subtitle">No evidence Client Lead verified equipment with consultant after start date</div>
+      </div>
+      <div class="item-toggle"><i class="toggle-icon">+</i></div>
+    </div>
+    <div class="item-detail">
+      <div class="detail-inner">
+        <div class="detail-grid">
+          <div class="detail-block">
+            <div class="detail-label">Audit finding</div>
+            <div class="detail-val">Checks may occur in practice but evidence of consultant confirmation has not been consistently retained in QMS and was not available during the audit.</div>
+            <div class="owner-pill"><div class="owner-dot"></div>Nafa Duwebi / Nathan Spooner</div>
+          </div>
+          <div class="detail-block">
+            <div class="detail-label">Agreed corrective action</div>
+            <div class="detail-val">Check with relevant Client Leads and Consultants what evidence is available, upload to QMS, and ensure evidence is retained going forward.</div>
+          </div>
+        </div>
+        <div class="qms-ref">
+          <div class="qms-ref-header">
+            <div class="qms-ref-title">&#9632; QMS Reference — Process Architecture</div>
+          </div>
+          <div class="qms-ref-body">
+            <div class="qms-row">
+              <span class="qms-key">Step 5.3.2</span>
+              <span class="qms-val">The Client Lead verifies with the Consultant(s) that all required equipment and infrastructure has been provided by the client as agreed</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">ISO clause</span>
+              <span class="qms-val"><strong>7.1.3</strong> Infrastructure</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">Evidence needed</span>
+              <span class="qms-val">Email or Teams message from Client Lead to consultant confirming equipment was in place on or after the start date. Min. 2 examples.</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">SP location</span>
+              <span class="qms-val">Active Quality Documents → <strong>Manage infrastructure and environment</strong></span>
+            </div>
+          </div>
+        </div>
+        <div class="deadline-row">
+          <span class="deadline-chip">&#128197; Deadline: 29 May 2026</span>
+          <span style="font-family:Arial;font-size:12px;color:var(--text-muted)">Status: <span class="badge-open" style="padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;">Open</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P22 5.5.1 -->
+  <div class="item" data-process="p22" data-sev="low">
+    <div class="item-header" onclick="toggle(this.parentElement)">
+      <div class="step-col">
+        <span class="step-tag badge-p22">P22 · 5.5.1</span>
+        <span class="step-tag badge-low">Low</span>
+      </div>
+      <div class="item-summary">
+        <div class="item-title">Previously used venue verification</div>
+        <div class="item-subtitle">Evidence exists in Training function but not uploaded to P22 area of QMS</div>
+      </div>
+      <div class="item-toggle"><i class="toggle-icon">+</i></div>
+    </div>
+    <div class="item-detail">
+      <div class="detail-inner">
+        <div class="detail-grid">
+          <div class="detail-block">
+            <div class="detail-label">Audit finding</div>
+            <div class="detail-val">Relevant evidence understood to exist within the Training function but not confirmed and uploaded to the Infrastructure and Environment area of the QMS.</div>
+            <div class="owner-pill"><div class="owner-dot"></div>Nafa Duwebi / Josie Rothera</div>
+          </div>
+          <div class="detail-block">
+            <div class="detail-label">Agreed corrective action</div>
+            <div class="detail-val">Quality Manager confirms relevant evidence with the Training team and uploads appropriate records to the Infrastructure and Environment area of the QMS.</div>
+          </div>
+        </div>
+        <div class="qms-ref">
+          <div class="qms-ref-header">
+            <div class="qms-ref-title">&#9632; QMS Reference — Process Architecture</div>
+          </div>
+          <div class="qms-ref-body">
+            <div class="qms-row">
+              <span class="qms-key">Step 5.5.1</span>
+              <span class="qms-val">Where a venue has been previously used (on the Training course site log), the Trainer will contact the venue prior to delivery to verify all equipment and infrastructure is available. The Trainer records the verification on the <strong>Deliver training course check sheet</strong></span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">ISO clause</span>
+              <span class="qms-val"><strong>7.1.3</strong> Infrastructure / <strong>7.1.4</strong> Environment</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">Key document</span>
+              <span class="qms-val"><strong>Deliver training course check sheet</strong> — venue verification tab. Confirm with Josie Rothera and upload.</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">SP location</span>
+              <span class="qms-val">Active Quality Documents → <strong>Manage infrastructure and environment</strong></span>
+            </div>
+          </div>
+        </div>
+        <div class="deadline-row">
+          <span class="deadline-chip">&#128197; Deadline: 29 May 2026</span>
+          <span style="font-family:Arial;font-size:12px;color:var(--text-muted)">Status: <span class="badge-open" style="padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;">Open</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P22 5.5.2 -->
+  <div class="item" data-process="p22" data-sev="low">
+    <div class="item-header" onclick="toggle(this.parentElement)">
+      <div class="step-col">
+        <span class="step-tag badge-p22">P22 · 5.5.2</span>
+        <span class="step-tag badge-low">Low</span>
+      </div>
+      <div class="item-summary">
+        <div class="item-title">New venue — visit or checklist request</div>
+        <div class="item-subtitle">Evidence exists in Training function but not uploaded to QMS</div>
+      </div>
+      <div class="item-toggle"><i class="toggle-icon">+</i></div>
+    </div>
+    <div class="item-detail">
+      <div class="detail-inner">
+        <div class="detail-grid">
+          <div class="detail-block">
+            <div class="detail-label">Audit finding</div>
+            <div class="detail-val">Relevant evidence understood to exist within the Training function but not confirmed and uploaded to the Infrastructure and Environment area of the QMS.</div>
+            <div class="owner-pill"><div class="owner-dot"></div>Nafa Duwebi / Josie Rothera</div>
+          </div>
+          <div class="detail-block">
+            <div class="detail-label">Agreed corrective action</div>
+            <div class="detail-val">Quality Manager confirms relevant evidence with the Training team and uploads appropriate records to the QMS.</div>
+          </div>
+        </div>
+        <div class="qms-ref">
+          <div class="qms-ref-header">
+            <div class="qms-ref-title">&#9632; QMS Reference — Process Architecture</div>
+          </div>
+          <div class="qms-ref-body">
+            <div class="qms-row">
+              <span class="qms-key">Step 5.5.2</span>
+              <span class="qms-val">Where a venue has not been previously used, the Trainer will contact the venue and arrange a visit or request a checklist</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">ISO clause</span>
+              <span class="qms-val"><strong>7.1.3</strong> Infrastructure / <strong>7.1.4</strong> Environment</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">Evidence needed</span>
+              <span class="qms-val">Email arranging a venue visit, or completed venue checklist request from the Trainer. Confirm with Josie Rothera.</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">SP location</span>
+              <span class="qms-val">Active Quality Documents → <strong>Manage infrastructure and environment</strong></span>
+            </div>
+          </div>
+        </div>
+        <div class="deadline-row">
+          <span class="deadline-chip">&#128197; Deadline: 29 May 2026</span>
+          <span style="font-family:Arial;font-size:12px;color:var(--text-muted)">Status: <span class="badge-open" style="padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;">Open</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P22 5.5.3 -->
+  <div class="item" data-process="p22" data-sev="low">
+    <div class="item-header" onclick="toggle(this.parentElement)">
+      <div class="step-col">
+        <span class="step-tag badge-p22">P22 · 5.5.3</span>
+        <span class="step-tag badge-low">Low</span>
+      </div>
+      <div class="item-summary">
+        <div class="item-title">Physical course environment — daily comfort standards</div>
+        <div class="item-subtitle">Evidence exists in Training function but not uploaded to QMS</div>
+      </div>
+      <div class="item-toggle"><i class="toggle-icon">+</i></div>
+    </div>
+    <div class="item-detail">
+      <div class="detail-inner">
+        <div class="detail-grid">
+          <div class="detail-block">
+            <div class="detail-label">Audit finding</div>
+            <div class="detail-val">Relevant evidence understood to exist within the Training function but not confirmed and uploaded to the Infrastructure and Environment area of the QMS.</div>
+            <div class="owner-pill"><div class="owner-dot"></div>Nafa Duwebi / Josie Rothera</div>
+          </div>
+          <div class="detail-block">
+            <div class="detail-label">Agreed corrective action</div>
+            <div class="detail-val">Quality Manager confirms relevant evidence with the Training team and uploads appropriate records to the QMS.</div>
+          </div>
+        </div>
+        <div class="qms-ref">
+          <div class="qms-ref-header">
+            <div class="qms-ref-title">&#9632; QMS Reference — Process Architecture</div>
+          </div>
+          <div class="qms-ref-body">
+            <div class="qms-row">
+              <span class="qms-key">Step 5.5.3</span>
+              <span class="qms-val">The physical requirements of the course environment will be set to a comfortable level every day by the Trainer — temperature, heat, airflow, light and noise. If deemed unacceptable, the Trainer arranges necessary equipment to deliver in acceptable conditions.</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">ISO clause</span>
+              <span class="qms-val"><strong>7.1.4</strong> Environment for operation of processes</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">Key document</span>
+              <span class="qms-val"><strong>Deliver training course check sheet</strong> — environment section. Can close 5.5.1, 5.5.2 and 5.5.3 together using the same check sheet evidence.</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">SP location</span>
+              <span class="qms-val">Active Quality Documents → <strong>Manage infrastructure and environment</strong></span>
+            </div>
+          </div>
+        </div>
+        <div class="deadline-row">
+          <span class="deadline-chip">&#128197; Deadline: 29 May 2026</span>
+          <span style="font-family:Arial;font-size:12px;color:var(--text-muted)">Status: <span class="badge-open" style="padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;">Open</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P09 SECTION -->
+  <div class="section-label" data-section="p09">
+    <span class="section-badge badge-p09">P09 — Research &amp; present consultancy options</span>
+    audited 05/05/2026 · owner: Nathan Spooner
+  </div>
+
+  <!-- P09 5.2.1 -->
+  <div class="item" data-process="p09" data-sev="med">
+    <div class="item-header" onclick="toggle(this.parentElement)">
+      <div class="step-col">
+        <span class="step-tag badge-p09">P09 · 5.2.1</span>
+        <span class="step-tag badge-med">Medium</span>
+      </div>
+      <div class="item-summary">
+        <div class="item-title">CRM not consistently maintained</div>
+        <div class="item-subtitle">External consultants cannot be reliably identified when required — operational risk</div>
+      </div>
+      <div class="item-toggle"><i class="toggle-icon">+</i></div>
+    </div>
+    <div class="item-detail">
+      <div class="detail-inner">
+        <div class="detail-grid">
+          <div class="detail-block">
+            <div class="detail-label">Audit finding</div>
+            <div class="detail-val">CRM has not been regularly maintained by the responsible team, resulting in outdated records that do not accurately reflect available consultants.</div>
+            <div class="owner-pill"><div class="owner-dot"></div>Nathan Spooner</div>
+          </div>
+          <div class="detail-block">
+            <div class="detail-label">Agreed corrective action</div>
+            <div class="detail-val">Business Development Manager to conduct a full review and update of the CRM. Establish a regular maintenance schedule to ensure records are kept current on an ongoing basis.</div>
+          </div>
+        </div>
+        <div class="qms-ref">
+          <div class="qms-ref-header">
+            <div class="qms-ref-title">&#9632; QMS Reference — Process Architecture</div>
+          </div>
+          <div class="qms-ref-body">
+            <div class="qms-row">
+              <span class="qms-key">Step 5.2.1</span>
+              <span class="qms-val">If the Head of Delivery cannot identify a PLP Consultant available with the required attributes, the Business Development Manager uses the <strong>CRM</strong> to identify other Consultants (external resources, contractors etc.) with the required attributes</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">ISO clause</span>
+              <span class="qms-val"><strong>8.3</strong> Design and development of products and services</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">Evidence needed</span>
+              <span class="qms-val">Up-to-date CRM records showing current consultant profiles, availability and skills. Demonstration that the CRM can be reliably used to identify suitable consultants.</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">SP location</span>
+              <span class="qms-val">Account Management → <strong>CRM</strong></span>
+            </div>
+          </div>
+        </div>
+        <div class="deadline-row">
+          <span class="deadline-chip">&#128197; Deadline: 29 May 2026</span>
+          <span style="font-family:Arial;font-size:12px;color:var(--text-muted)">Status: <span class="badge-open" style="padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;">Open</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P09 5.3.3 -->
+  <div class="item" data-process="p09" data-sev="low">
+    <div class="item-header" onclick="toggle(this.parentElement)">
+      <div class="step-col">
+        <span class="step-tag badge-p09">P09 · 5.3.3</span>
+        <span class="step-tag badge-low">Low</span>
+      </div>
+      <div class="item-summary">
+        <div class="item-title">Rejected CV feedback not recorded in CRM</div>
+        <div class="item-subtitle">No evidence feedback shared with Head of Delivery or discussed with consultant</div>
+      </div>
+      <div class="item-toggle"><i class="toggle-icon">+</i></div>
+    </div>
+    <div class="item-detail">
+      <div class="detail-inner">
+        <div class="detail-grid">
+          <div class="detail-block">
+            <div class="detail-label">Audit finding</div>
+            <div class="detail-val">No suitable example had occurred recently enough to have been captured and retained in the QMS at the time of the audit.</div>
+            <div class="owner-pill"><div class="owner-dot"></div>Nathan Spooner</div>
+          </div>
+          <div class="detail-block">
+            <div class="detail-label">Agreed corrective action</div>
+            <div class="detail-val">A suitable example will be identified and uploaded to the QMS once available. Process owners will be reminded of the evidence retention requirement.</div>
+          </div>
+        </div>
+        <div class="qms-ref">
+          <div class="qms-ref-header">
+            <div class="qms-ref-title">&#9632; QMS Reference — Process Architecture</div>
+          </div>
+          <div class="qms-ref-body">
+            <div class="qms-row">
+              <span class="qms-key">Step 5.3.3</span>
+              <span class="qms-val">If the enquirer rejects the CV(s), the BDM or Client Lead <strong>shares feedback with the Head of Delivery</strong>, <strong>updates the CRM</strong>, and <strong>discusses a summary with the Consultant(s)</strong>. The Head of Delivery identifies further Consultants.</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">ISO clause</span>
+              <span class="qms-val"><strong>8.3</strong> Design and development of products and services</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">Evidence needed</span>
+              <span class="qms-val">CRM record showing: rejected CV noted, feedback received from client, discussion with Head of Delivery recorded, summary discussed with the consultant.</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">SP location</span>
+              <span class="qms-val">Account Management → <strong>CRM</strong></span>
+            </div>
+          </div>
+        </div>
+        <div class="deadline-row">
+          <span class="deadline-chip">&#128197; Deadline: 29 May 2026</span>
+          <span style="font-family:Arial;font-size:12px;color:var(--text-muted)">Status: <span class="badge-open" style="padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;">Open</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P09 5.5.1 / 5.6.1 / 5.6.2 -->
+  <div class="item" data-process="p09" data-sev="med">
+    <div class="item-header" onclick="toggle(this.parentElement)">
+      <div class="step-col">
+        <span class="step-tag badge-p09" style="font-size:10px;">P09 · 5.5.1<br>5.6.1 · 5.6.2</span>
+        <span class="step-tag badge-med">Medium</span>
+      </div>
+      <div class="item-summary">
+        <div class="item-title">Interview scheduling and feedback not recorded in CRM</div>
+        <div class="item-subtitle">Scheduling, successful and unsuccessful feedback all missing across three steps</div>
+      </div>
+      <div class="item-toggle"><i class="toggle-icon">+</i></div>
+    </div>
+    <div class="item-detail">
+      <div class="detail-inner">
+        <div class="detail-grid">
+          <div class="detail-block">
+            <div class="detail-label">Audit finding</div>
+            <div class="detail-val">CRM has not been consistently updated by the BDM following interview activity, resulting in a lack of recorded evidence across three process steps.</div>
+            <div class="owner-pill"><div class="owner-dot"></div>Nathan Spooner</div>
+          </div>
+          <div class="detail-block">
+            <div class="detail-label">Agreed corrective action</div>
+            <div class="detail-val">BDM to update CRM for recent interview activity where possible and implement a consistent practice of recording all interview scheduling and feedback going forward.</div>
+          </div>
+        </div>
+        <div class="qms-ref">
+          <div class="qms-ref-header">
+            <div class="qms-ref-title">&#9632; QMS Reference — Process Architecture</div>
+          </div>
+          <div class="qms-ref-body">
+            <div class="qms-row">
+              <span class="qms-key">Step 5.5.1</span>
+              <span class="qms-val">Upon acceptance of CV(s), BDM or Client Lead liaises with the enquirer and Consultant to schedule an interview (if required). <strong>This is recorded and considered in the CRM.</strong></span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">Step 5.6.1</span>
+              <span class="qms-val">If Consultant is <strong>successful</strong>, BDM or Client Lead discusses feedback with Consultant and Head of Delivery. <strong>Feedback reviewed and considered in the CRM.</strong></span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">Step 5.6.2</span>
+              <span class="qms-val">If Consultant is <strong>unsuccessful</strong>, BDM or Client Lead discusses feedback with Consultant and Head of Delivery. <strong>Feedback recorded on the CRM.</strong> Head of Delivery reverts to step 5.1 if required.</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">ISO clause</span>
+              <span class="qms-val"><strong>8.3</strong> Design and development of products and services</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">Evidence needed</span>
+              <span class="qms-val">CRM records showing: interview scheduled and date noted; outcome of interview recorded; feedback discussed with consultant and Head of Delivery captured.</span>
+            </div>
+            <div class="qms-row">
+              <span class="qms-key">SP location</span>
+              <span class="qms-val">Account Management → <strong>CRM</strong></span>
+            </div>
+          </div>
+        </div>
+        <div class="deadline-row">
+          <span class="deadline-chip">&#128197; Deadline: 29 May 2026</span>
+          <span style="font-family:Arial;font-size:12px;color:var(--text-muted)">Status: <span class="badge-open" style="padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;">Open</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <span>PL Projects Ltd</span> &nbsp;|&nbsp; QMS Improvement Log Tracker &nbsp;|&nbsp; ISO 9001:2015 &nbsp;|&nbsp; SGS Certified &nbsp;|&nbsp; <span>Last updated: May 2026</span>
+</footer>
+
+<script>
+  function toggle(item) {
+    var detail = item.querySelector('.item-detail');
+    var isOpen = item.classList.contains('open');
+    document.querySelectorAll('.item.open').forEach(function(i) {
+      i.classList.remove('open');
+      i.querySelector('.item-detail').classList.remove('visible');
+    });
+    if (!isOpen) {
+      item.classList.add('open');
+      detail.classList.add('visible');
+      item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+
+  function filter(type, btn) {
+    document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    document.querySelectorAll('.item').forEach(function(item) {
+      item.classList.remove('open');
+      item.querySelector('.item-detail').classList.remove('visible');
+      if (type === 'all') {
+        item.classList.remove('hidden');
+      } else if (type === 'med') {
+        item.dataset.sev === 'med' ? item.classList.remove('hidden') : item.classList.add('hidden');
+      } else {
+        item.dataset.process === type ? item.classList.remove('hidden') : item.classList.add('hidden');
+      }
+    });
+    document.querySelectorAll('[data-section]').forEach(function(s) {
+      if (type === 'all') { s.style.display = ''; }
+      else if (type === 'med') { s.style.display = ''; }
+      else { s.dataset.section === type ? s.style.display = '' : s.style.display = 'none'; }
+    });
+  }
+
+  function updateCountdowns() {
+    var now = new Date();
+    var deadline = new Date('2026-05-29');
+    var sgs = new Date('2026-06-11');
+    var dDeadline = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+    var dSgs = Math.ceil((sgs - now) / (1000 * 60 * 60 * 24));
+    var dEl = document.getElementById('days-to-deadline');
+    var sEl = document.getElementById('days-to-sgs');
+    if (dEl) dEl.textContent = dDeadline > 0 ? dDeadline : 'Overdue';
+    if (sEl) sEl.textContent = dSgs > 0 ? dSgs : 'Past';
+    if (dDeadline <= 0 && dEl) dEl.style.color = 'var(--open-text)';
+  }
+  updateCountdowns();
+</script>
+</body>
+</html>
