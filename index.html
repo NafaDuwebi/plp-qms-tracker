@@ -460,7 +460,7 @@
     </div>
     <div class="header-meta">
       <div class="header-meta-title">Improvement Log Tracker</div>
-      <div class="header-meta-date">SGS External Audit: 11 June 2026 &nbsp;|&nbsp; Deadline: 29 May 2026</div>
+      <div class="header-meta-date">SGS External Audit: 3 July 2026 &nbsp;|&nbsp; Deadline: 29 May 2026</div>
     </div>
   </div>
 </header>
@@ -486,7 +486,7 @@
     <div class="stat-card">
       <div class="stat-label">Days to SGS audit</div>
       <div class="stat-value orange" id="days-to-sgs">—</div>
-      <div class="stat-sub">11 June 2026</div>
+      <div class="stat-sub">3 July 2026</div>
     </div>
   </div>
 
@@ -1080,7 +1080,7 @@
   function updateCountdowns() {
     var now = new Date();
     var deadline = new Date('2026-05-29');
-    var sgs = new Date('2026-06-11');
+    var sgs = new Date('2026-07-03');
     var dDeadline = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
     var dSgs = Math.ceil((sgs - now) / (1000 * 60 * 60 * 24));
     var dEl = document.getElementById('days-to-deadline');
